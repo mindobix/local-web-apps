@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local &rsaquo; LaunchPad</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #080c14;
+      --surface:   #0f1520;
+      --surface2:  #161e2e;
+      --border:    #1e2d45;
+      --border2:   #253550;
+      --text:      #e8f0fe;
+      --muted:     #6b7fa3;
+      --dim:       #2a3a5c;
+      --accent:    #6366f1;
+      --accent2:   #818cf8;
+      --glow:      rgba(99,102,241,0.18);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── AMBIENT GLOW ── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 24px 80px;
+    }
+
+    /* ── HEADER ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 24px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    .hero-title .word-local {
+      color: var(--accent);
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title .word-sep {
+      color: var(--dim);
+      font-weight: 300;
+      -webkit-text-fill-color: var(--dim);
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 720px;
+      margin-bottom: 32px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border2), transparent);
+    }
+
+    .divider-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* ── APP GRID ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    /* ── APP CARD ── */
+    .app-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .app-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--border2);
+    }
+
+    .app-card:hover::before { opacity: 1; }
+
+    /* per-card accent glow */
+    .app-card[data-color="indigo"]::before  { background: radial-gradient(ellipse at top left, rgba(99,102,241,0.1) 0%, transparent 60%); }
+    .app-card[data-color="emerald"]::before { background: radial-gradient(ellipse at top left, rgba(16,185,129,0.1) 0%, transparent 60%); }
+    .app-card[data-color="sky"]::before     { background: radial-gradient(ellipse at top left, rgba(14,165,233,0.1) 0%, transparent 60%); }
+    .app-card[data-color="violet"]::before  { background: radial-gradient(ellipse at top left, rgba(139,92,246,0.1) 0%, transparent 60%); }
+    .app-card[data-color="amber"]::before   { background: radial-gradient(ellipse at top left, rgba(245,158,11,0.1) 0%, transparent 60%); }
+
+    /* ── CARD TOP ROW ── */
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .card-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .app-card:hover .card-arrow {
+      opacity: 1;
+      transform: translate(2px, -2px);
+    }
+
+    /* ── CARD BODY ── */
+    .card-body { display: flex; flex-direction: column; gap: 8px; }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    /* ── PILL TAG ── */
+    .card-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      align-self: flex-start;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .pill-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      flex-shrink: 0;
+    }
+
+    /* color variants */
+    .pill-indigo  { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .pill-emerald { background: linear-gradient(135deg, #10b981, #059669); }
+    .pill-sky     { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+    .pill-violet  { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .pill-amber   { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    /* icon bg variants */
+    .icon-indigo  { background: rgba(99,102,241,0.15); }
+    .icon-emerald { background: rgba(16,185,129,0.15); }
+    .icon-sky     { background: rgba(14,165,233,0.15); }
+    .icon-violet  { background: rgba(139,92,246,0.15); }
+    .icon-amber   { background: rgba(245,158,11,0.15); }
+
+    .app-card:hover .card-arrow.indigo  { border-color: #6366f1; color: #818cf8; }
+    .app-card:hover .card-arrow.emerald { border-color: #10b981; color: #34d399; }
+    .app-card:hover .card-arrow.sky     { border-color: #0ea5e9; color: #38bdf8; }
+    .app-card:hover .card-arrow.violet  { border-color: #8b5cf6; color: #a78bfa; }
+    .app-card:hover .card-arrow.amber   { border-color: #f59e0b; color: #fcd34d; }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 72px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .footer span { color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .page { padding: 52px 16px 52px; }
+      .app-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      Local Apps
+    </div>
+    <h1 class="hero-title">
+      <span class="word-local">Local</span>
+      <span class="word-sep"> &rsaquo; </span>LaunchPad
+    </h1>
+    <p class="hero-sub">Your personal collection of offline-first web apps. Pick one and launch.</p>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Apps</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- APP GRID -->
+  <div class="app-grid">
+
+    <!-- Habit Calendar -->
+    <a class="app-card" href="./local-habit-calendar/index.html" data-color="indigo" target="_blank" rel="noopener">
+      <div class="card-top">
+        <div class="card-icon icon-indigo">📅</div>
+        <div class="card-arrow indigo">&#8599;</div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Habit Calendar</div>
+        <div class="card-desc">Track daily habits on a visual calendar. Log streaks, mark completions, and review your progress month by month.</div>
+      </div>
+      <div class="card-pill pill-indigo"><span class="pill-dot"></span>Habit Tracker</div>
+    </a>
+
+    <!-- Trading Journal -->
+    <a class="app-card" href="./local-trading-journal/index.html" data-color="emerald" target="_blank" rel="noopener">
+      <div class="card-top">
+        <div class="card-icon icon-emerald">📈</div>
+        <div class="card-arrow emerald">&#8599;</div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Trading Journal</div>
+        <div class="card-desc">Log trades, track P&amp;L, and analyze performance — all in the browser with no server required.</div>
+      </div>
+      <div class="card-pill pill-emerald"><span class="pill-dot"></span>Finance</div>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">Built locally &mdash; <span>no internet required</span></div>
+
+</div>
+</body>
+</html>
