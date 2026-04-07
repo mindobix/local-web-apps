@@ -8,11 +8,6 @@ All apps run entirely in the browser and store data in `localStorage`.
 
 ## Apps
 
-### [Habit Calendar](https://github.com/mindobix/local-habit-calendar)
-Track daily habits on a visual monthly calendar. Create habits with custom names and colors, log completions, and review streaks — all without any backend.
-
----
-
 ### [Trading Journal](https://github.com/mindobix/local-trading-journal)
 A full-featured, privacy-first trading journal that runs entirely in your browser. Log trades, track P&L, analyze performance, save LLM prompts, and manage options trade plans — no subscription required.
 
@@ -45,6 +40,16 @@ A free, offline-first flashcard and annotation app for USMLE Step 1, Step 2 CK, 
 
 ### [My Family Tree](https://github.com/mindobix/myfamilytree)
 Build, visualize, and preserve your family history entirely in your browser. Interactive drag-and-drop editor with rich profiles, photos, relationships, and generational views — no internet required.
+
+---
+
+### [FileSync](https://github.com/mindobix/local-filesync)
+Cross-platform LAN file sync Electron app — peer discovery via UDP, file transfer via WebSocket, system tray, and React UI. Sync files across devices on your local network with no cloud required.
+
+---
+
+### [Habit Calendar](https://github.com/mindobix/local-habit-calendar)
+Track daily habits on a visual monthly calendar. Create habits with custom names and colors, log completions, and review streaks — all without any backend.
 
 ---
 
