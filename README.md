@@ -6,8 +6,6 @@ All apps run entirely in the browser and store data in `localStorage`.
 
 ---
 
-## Web Apps
-
 ### [Trading Journal](https://github.com/mindobix/local-trading-journal)
 
 A full-featured, privacy-first trading journal that runs entirely in your browser. Log trades, track P&L, analyze performance, save LLM prompts, and manage options trade plans — no subscription required.
@@ -23,6 +21,14 @@ A zero-backend JSON configuration manager for development teams. Create, edit, v
 ### [FileSync](https://github.com/mindobix/local-filesync)
 
 Cross-platform LAN file sync Electron app — peer discovery via UDP, file transfer via WebSocket, system tray, and React UI. Sync files across devices on your local network with no cloud required.
+
+---
+
+## Web Apps
+
+### [VibeCoding App Ideas](https://github.com/mindobix/local-vibecoding-appideas)
+
+Your private idea workspace for vibe coders. Capture, write, and track every app idea in a Notion-style editor — rich text formatting, block types (H1–H3, lists, quotes, code), text & background colors, floating selection toolbar, drag ideas between categories, GitHub repo links, status workflow (Idea → In Progress → Shipped → Archived), named version snapshots, and full backup/restore. Zero cloud. Zero accounts. One HTML file.
 
 ---
 
