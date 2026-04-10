@@ -26,7 +26,7 @@ A zero-backend JSON configuration manager for development teams. Create, edit, v
 
 ### [VibeCoding App Ideas](https://github.com/mindobix/local-vibecoding-appideas)
 
-## Your private idea workspace for vibe coders. Capture, write, and track every app idea in a Notion-style editor — rich text formatting, block types (H1–H3, lists, quotes, code), text & background colors, floating selection toolbar, drag ideas between categories, GitHub repo links, status workflow (Idea → In Progress → Shipped → Archived), named version snapshots, and full backup/restore. Zero cloud. Zero accounts. One HTML file.
+Your private idea workspace for vibe coders. Capture, write, and track every app idea in a Notion-style editor — rich text formatting, block types (H1–H3, lists, quotes, code), text & background colors, floating selection toolbar, drag ideas between categories, GitHub repo links, status workflow (Idea → In Progress → Shipped → Archived), named version snapshots, and full backup/restore. Zero cloud. Zero accounts. One HTML file.
 
 ### [Desktops FileSync](https://github.com/mindobix/local-filesync)
 
