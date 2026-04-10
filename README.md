@@ -23,6 +23,18 @@ A zero-backend JSON configuration manager for development teams. Create, edit, v
 ### [VibeCoding App Ideas](https://github.com/mindobix/local-vibecoding-appideas)
 
 Your private idea workspace for vibe coders. Capture, write, and track every app idea in a Notion-style editor — rich text formatting, block types (H1–H3, lists, quotes, code), text & background colors, floating selection toolbar, drag ideas between categories, GitHub repo links, status workflow (Idea → In Progress → Shipped → Archived), named version snapshots, and full backup/restore. Zero cloud. Zero accounts. One HTML file.
+---
+
+### [Desktops FileSync](https://github.com/mindobix/local-filesync)
+
+Cross-platform LAN file sync Electron app — peer discovery via UDP, file transfer via WebSocket, system tray, and React UI. Sync files across devices on your local network with no cloud required.
+
+---
+
+### [Keywords Files Finder](https://github.com/mindobix/local-keywords-files-finder)
+
+Search your local files by keyword — scan folders, filter by file type, and locate matches fast with no server required. All processing happens in the browser.
+
 
 ---
 
@@ -59,18 +71,6 @@ Track daily habits on a visual monthly calendar. Create habits with custom names
 ### [Weekly Options Trade Plan](https://github.com/mindobix/local-weekly-options-trade-plan)
 
 Plan and track weekly options trades across monthly, weekly, and daily views. Log calls and puts with strike, expiry, trigger price, targets, and stop — with status workflow and filter/search.
-
----
-
-### [FileSync](https://github.com/mindobix/local-filesync)
-
-Cross-platform LAN file sync Electron app — peer discovery via UDP, file transfer via WebSocket, system tray, and React UI. Sync files across devices on your local network with no cloud required.
-
----
-
-### [Keywords Files Finder](https://github.com/mindobix/local-keywords-files-finder)
-
-Search your local files by keyword — scan folders, filter by file type, and locate matches fast with no server required. All processing happens in the browser.
 
 ---
 
