@@ -84,4 +84,27 @@ Plan and track weekly options trades across monthly, weekly, and daily views. Lo
 
 ## LaunchPad
 
-Open `index.html` in your browser to access all apps from a single page
+Open `index.html` in your browser to access all apps from a single page.
+
+> **Important — directory layout:** The LaunchPad links to each app using relative paths that go up one level (`../app-name/index.html`). For these links to work, **all repos must be cloned as siblings inside the same parent folder**, like this:
+>
+> ```
+> vibecode/                          ← any parent folder name works
+> ├── local-web-apps/                ← this repo (the LaunchPad)
+> │   └── index.html
+> ├── local-trading-journal/
+> ├── local-vibecoding-appideas/
+> ├── MyCareerPulse/
+> ├── local-api-web-proxy/
+> ├── local-shareanyjson/
+> ├── local-filesync/
+> ├── local-keywords-files-finder/
+> ├── local-recipebook/
+> ├── myfamilytree/
+> ├── local-billpay-tracker/
+> ├── local-weekly-options-trade-plan/
+> ├── local-habit-calendar/
+> └── medreview/
+> ```
+>
+> If a repo is cloned into a different location, its card in the LaunchPad will open a broken page. Clone each app repo next to `local-web-apps/` and the links will work without any changes.
