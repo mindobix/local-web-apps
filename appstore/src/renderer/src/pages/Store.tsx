@@ -24,7 +24,8 @@ interface CloneState {
 export default function Store({ settings, onChangeFolder }: Props) {
   const [statuses, setStatuses] = useState<Record<string, boolean>>({})
   const [servers, setServers] = useState<Record<string, number>>({})
-  const [filter, setFilter] = useState<Filter>('all')
+  const [filter, setFilter] = useState<Filter>(() => localStorage.getItem('activeTab') ?? 'all')
+  const setFilterAndPersist = (f: Filter) => { setFilter(f); localStorage.setItem('activeTab', f) }
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('favorites') ?? '[]')) } catch { return new Set() }
   })
@@ -186,14 +187,14 @@ export default function Store({ settings, onChangeFolder }: Props) {
         {(['all', 'installed', 'available'] as Filter[]).map(f => (
           <button
             key={f}
-            onClick={() => setFilter(f)}
+            onClick={() => setFilterAndPersist(f)}
             className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-colors flex-shrink-0 ${filter === f ? 'bg-[#5b5ef4] text-white' : 'text-[#64748b] hover:text-white hover:bg-white/[0.08]'}`}
           >
             {f}
           </button>
         ))}
         <button
-          onClick={() => setFilter('favorites')}
+          onClick={() => setFilterAndPersist('favorites')}
           className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex-shrink-0 flex items-center gap-1 ${filter === 'favorites' ? 'bg-[#f472b6]/20 text-[#f472b6] border border-[#f472b6]/30' : 'text-[#64748b] hover:text-white hover:bg-white/[0.08]'}`}
         >
           <span>♥</span> Favorites {favorites.size > 0 && <span className={`ml-0.5 ${filter === 'favorites' ? 'text-[#f472b6]' : 'text-[#4a5568]'}`}>({favorites.size})</span>}
@@ -202,7 +203,7 @@ export default function Store({ settings, onChangeFolder }: Props) {
         {categories.map(cat => (
           <button
             key={cat}
-            onClick={() => setFilter(cat)}
+            onClick={() => setFilterAndPersist(cat)}
             className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex-shrink-0 ${filter === cat ? 'bg-[#5b5ef4] text-white' : 'text-[#64748b] hover:text-white hover:bg-white/[0.08]'}`}
           >
             {cat}
