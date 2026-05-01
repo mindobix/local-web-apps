@@ -1,9 +1,20 @@
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron'
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import net from 'net'
 import { spawn, ChildProcess } from 'child_process'
 import * as db from './db'
+import clonesDef from '../../clones.json'
+
+interface AppBackupDef { id: string; backupPattern?: string }
+const BACKUP_APPS = (clonesDef as AppBackupDef[]).filter(a => !!a.backupPattern)
+const DOWNLOADS = path.join(os.homedir(), 'Downloads')
+
+function patternToRegex(pattern: string): RegExp {
+  const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
+  return new RegExp(`^${escaped}$`)
+}
 
 interface ServerProc extends ChildProcess {
   port: number
@@ -218,7 +229,77 @@ export function setupIPC(mainWindow: BrowserWindow): () => void {
     return result
   })
 
+  // ── Backup handlers ──────────────────────────────────────────────────────
+  ipcMain.handle('get-backup-state', () => ({
+    folders: db.getBackupFolders(),
+    history: db.getBackupHistory()
+  }))
+
+  ipcMain.handle('set-backup-folder', async (_e, appId: string) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Select backup folder'
+    })
+    if (result.canceled) return null
+    const folderPath = result.filePaths[0]
+    db.setBackupFolder(appId, folderPath)
+    return folderPath
+  })
+
+  ipcMain.handle('open-folder', (_e, folderPath: string) => shell.openPath(folderPath))
+
+  // ── Downloads poller ─────────────────────────────────────────────────────
+  // Watches ~/Downloads every 3 s for files matching each app's backupPattern.
+  // Uses a two-tick size-stability check to avoid copying partial writes.
+  let backupPollTimer: ReturnType<typeof setInterval> | null = null
+
+  if (BACKUP_APPS.length > 0 && fs.existsSync(DOWNLOADS)) {
+    const seenSizes = new Map<string, number>()
+
+    backupPollTimer = setInterval(() => {
+      let entries: string[]
+      try { entries = fs.readdirSync(DOWNLOADS) } catch { return }
+
+      const backupFolders = db.getBackupFolders()
+
+      for (const appDef of BACKUP_APPS) {
+        const destFolder = backupFolders[appDef.id]
+        if (!destFolder) continue
+
+        const regex = patternToRegex(appDef.backupPattern!)
+
+        for (const entry of entries) {
+          if (!regex.test(entry)) continue
+
+          const srcPath = path.join(DOWNLOADS, entry)
+          let stat: fs.Stats
+          try { stat = fs.statSync(srcPath) } catch { continue }
+          if (!stat.isFile()) continue
+
+          // Two-tick stability: skip on first sight, copy once size is stable
+          const prevSize = seenSizes.get(srcPath)
+          seenSizes.set(srcPath, stat.size)
+          if (prevSize === undefined || prevSize !== stat.size) continue
+
+          const destPath = path.join(destFolder, entry)
+          if (fs.existsSync(destPath)) continue // already copied
+
+          try {
+            fs.mkdirSync(destFolder, { recursive: true })
+            fs.copyFileSync(srcPath, destPath)
+            const record = { fileName: entry, copiedAt: new Date().toISOString(), destPath }
+            db.recordBackup(appDef.id, record)
+            if (!mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('backup-copied', { appId: appDef.id, record })
+            }
+          } catch { /* skip failed copies, retry next tick */ }
+        }
+      }
+    }, 3000)
+  }
+
   return () => {
+    if (backupPollTimer !== null) clearInterval(backupPollTimer)
     for (const proc of runningServers.values()) proc.kill()
     runningServers.clear()
     for (const win of openAppWindows.values()) {

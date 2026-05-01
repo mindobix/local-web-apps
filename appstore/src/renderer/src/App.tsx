@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import type { Settings } from './types'
+import type { Settings, BackupRecord } from './types'
 import WelcomeDialog from './components/WelcomeDialog'
 import Store from './pages/Store'
 
@@ -20,6 +20,10 @@ declare global {
       onCloneProgress: (cb: (d: { appId: string; line: string }) => void) => () => void
       onServerLog: (cb: (d: { appId: string; line: string }) => void) => () => void
       onServerStopped: (cb: (d: { appId: string }) => void) => () => void
+      getBackupState: () => Promise<{ folders: Record<string, string>; history: Record<string, BackupRecord> }>
+      setBackupFolder: (appId: string) => Promise<string | null>
+      openFolder: (folderPath: string) => Promise<string>
+      onBackupCopied: (cb: (d: { appId: string; record: BackupRecord }) => void) => () => void
     }
   }
 }

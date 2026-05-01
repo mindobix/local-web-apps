@@ -11,6 +11,13 @@ export interface AppDef {
   startType: 'static' | 'python' | 'npm'
   startScript?: string
   indexFile?: string
+  backupPattern?: string
+}
+
+export interface BackupRecord {
+  fileName: string
+  copiedAt: string
+  destPath: string
 }
 
 export interface Settings {

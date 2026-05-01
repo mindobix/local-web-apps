@@ -29,5 +29,15 @@ contextBridge.exposeInMainWorld('api', {
     const handler = (_: Electron.IpcRendererEvent, data: { appId: string }) => cb(data)
     ipcRenderer.on('server-stopped', handler)
     return () => ipcRenderer.removeListener('server-stopped', handler)
+  },
+
+  getBackupState: () => ipcRenderer.invoke('get-backup-state'),
+  setBackupFolder: (appId: string) => ipcRenderer.invoke('set-backup-folder', appId),
+  openFolder: (folderPath: string) => ipcRenderer.invoke('open-folder', folderPath),
+
+  onBackupCopied: (cb: (data: { appId: string; record: { fileName: string; copiedAt: string; destPath: string } }) => void) => {
+    const handler = (_: Electron.IpcRendererEvent, data: { appId: string; record: { fileName: string; copiedAt: string; destPath: string } }) => cb(data)
+    ipcRenderer.on('backup-copied', handler)
+    return () => ipcRenderer.removeListener('backup-copied', handler)
   }
 })

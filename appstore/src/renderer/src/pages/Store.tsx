@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import type { AppDef, Settings } from '../types'
+import type { AppDef, Settings, BackupRecord } from '../types'
 import AppCard from '../components/AppCard'
 import CloneProgress from '../components/CloneProgress'
 import InstalledRing from '../components/InstalledRing'
@@ -33,6 +33,8 @@ export default function Store({ settings, onChangeFolder }: Props) {
   const [cloneState, setCloneState] = useState<CloneState | null>(null)
   const [cloningIds, setCloningIds] = useState<Set<string>>(new Set())
   const [refreshing, setRefreshing] = useState(false)
+  const [backupFolders, setBackupFolders] = useState<Record<string, string>>({})
+  const [backupHistory, setBackupHistory] = useState<Record<string, BackupRecord>>({})
   const [toast, setToast] = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>()
 
@@ -45,6 +47,10 @@ export default function Store({ settings, onChangeFolder }: Props) {
 
   useEffect(() => {
     loadStatuses()
+    window.api.getBackupState().then(({ folders, history }) => {
+      setBackupFolders(folders)
+      setBackupHistory(history)
+    })
 
     const offProgress = window.api.onCloneProgress(({ appId, line }) => {
       setCloneState(prev => {
@@ -57,7 +63,11 @@ export default function Store({ settings, onChangeFolder }: Props) {
       setServers(s => { const n = { ...s }; delete n[appId]; return n })
     })
 
-    return () => { offProgress(); offStopped() }
+    const offBackup = window.api.onBackupCopied(({ appId, record }) => {
+      setBackupHistory(prev => ({ ...prev, [appId]: record }))
+    })
+
+    return () => { offProgress(); offStopped(); offBackup() }
   }, [loadStatuses])
 
   const showToast = (msg: string) => {
@@ -112,6 +122,16 @@ export default function Store({ settings, onChangeFolder }: Props) {
     await loadStatuses()
     setRefreshing(false)
     showToast('Refreshed ✓')
+  }
+
+  const handleSetBackupFolder = async (appId: string) => {
+    const chosen = await window.api.setBackupFolder(appId)
+    if (chosen) setBackupFolders(prev => ({ ...prev, [appId]: chosen }))
+  }
+
+  const handleOpenBackupFolder = async (folder: string) => {
+    const err = await window.api.openFolder(folder)
+    if (err) showToast('Backup folder not found')
   }
 
   const toggleFavorite = (appId: string) => {
@@ -226,12 +246,16 @@ export default function Store({ settings, onChangeFolder }: Props) {
                   serverPort={servers[app.id]}
                   cloning={cloningIds.has(app.id)}
                   isFavorite={favorites.has(app.id)}
+                  backupFolder={backupFolders[app.id]}
+                  lastBackup={backupHistory[app.id]}
                   onClone={() => handleClone(app)}
                   onLaunch={() => handleLaunch(app)}
                   onStartServer={() => handleStartServer(app)}
                   onStopServer={() => handleStopServer(app)}
                   onOpenRepo={() => window.api.openRepo(app.repo)}
                   onToggleFavorite={() => toggleFavorite(app.id)}
+                  onSetBackupFolder={() => handleSetBackupFolder(app.id)}
+                  onOpenBackupFolder={() => backupFolders[app.id] && handleOpenBackupFolder(backupFolders[app.id])}
                 />
               ))}
             </div>
@@ -263,12 +287,16 @@ export default function Store({ settings, onChangeFolder }: Props) {
                   serverPort={servers[app.id]}
                   cloning={cloningIds.has(app.id)}
                   isFavorite={favorites.has(app.id)}
+                  backupFolder={backupFolders[app.id]}
+                  lastBackup={backupHistory[app.id]}
                   onClone={() => handleClone(app)}
                   onLaunch={() => handleLaunch(app)}
                   onStartServer={() => handleStartServer(app)}
                   onStopServer={() => handleStopServer(app)}
                   onOpenRepo={() => window.api.openRepo(app.repo)}
                   onToggleFavorite={() => toggleFavorite(app.id)}
+                  onSetBackupFolder={() => handleSetBackupFolder(app.id)}
+                  onOpenBackupFolder={() => backupFolders[app.id] && handleOpenBackupFolder(backupFolders[app.id])}
                 />
               ))}
             </div>

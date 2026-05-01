@@ -1,17 +1,21 @@
 import React from 'react'
-import type { AppDef } from '../types'
+import type { AppDef, BackupRecord } from '../types'
 
 interface Props {
   app: AppDef
   installed: boolean
   serverPort?: number
   isFavorite: boolean
+  backupFolder?: string
+  lastBackup?: BackupRecord
   onClone: () => void
   onLaunch: () => void
   onStartServer: () => void
   onStopServer: () => void
   onOpenRepo: () => void
   onToggleFavorite: () => void
+  onSetBackupFolder: () => void
+  onOpenBackupFolder: () => void
   cloning?: boolean
 }
 
@@ -41,7 +45,44 @@ function HeartIcon({ filled }: { filled: boolean }) {
   )
 }
 
-export default function AppCard({ app, installed, serverPort, isFavorite, onClone, onLaunch, onStartServer, onStopServer, onOpenRepo, onToggleFavorite, cloning }: Props) {
+function BackupFolderIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" fill={active ? '#f59e0b' : 'none'} stroke={active ? '#f59e0b' : 'currentColor'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.5 5A1.5 1.5 0 0 1 3 3.5H6L7.5 5H13A1.5 1.5 0 0 1 14.5 6.5V12A1.5 1.5 0 0 1 13 13.5H3A1.5 1.5 0 0 1 1.5 12V5Z" />
+      {active
+        ? <polyline points="5.5 9 7 10.5 10.5 7" strokeWidth="1.5" />
+        : <><line x1="8" y1="7" x2="8" y2="10.5" /><polyline points="6.5 9 8 10.5 9.5 9" /></>
+      }
+    </svg>
+  )
+}
+
+function FolderOpenIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.5 5A1.5 1.5 0 0 1 3 3.5H6L7.5 5H13A1.5 1.5 0 0 1 14.5 6.5v.5H3L1.5 12V5Z" />
+      <path d="M1.5 7H14L12.5 13.5h-11L1.5 7Z" />
+    </svg>
+  )
+}
+
+function relativeDate(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60_000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 30) return `${days}d ago`
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+export default function AppCard({
+  app, installed, serverPort, isFavorite, backupFolder, lastBackup,
+  onClone, onLaunch, onStartServer, onStopServer, onOpenRepo,
+  onToggleFavorite, onSetBackupFolder, onOpenBackupFolder, cloning
+}: Props) {
   const isServer = app.startType === 'python' || app.startType === 'npm'
   const serverRunning = serverPort !== undefined
 
@@ -60,7 +101,7 @@ export default function AppCard({ app, installed, serverPort, isFavorite, onClon
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* Circular installed badge */}
+          {/* Installed ring */}
           <div className="relative w-7 h-7">
             <svg width="28" height="28" viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="10" fill="none" stroke="#22223b" strokeWidth="2.5" />
@@ -84,6 +125,18 @@ export default function AppCard({ app, installed, serverPort, isFavorite, onClon
           >
             <HeartIcon filled={isFavorite} />
           </button>
+
+          {/* Backup folder — only if app declares a backupPattern */}
+          {app.backupPattern && (
+            <button
+              onClick={onSetBackupFolder}
+              title={backupFolder ? `Backup folder: ${backupFolder}` : 'Set backup folder'}
+              className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors hover:bg-white/10"
+              style={{ color: backupFolder ? '#f59e0b' : '#4a5568' }}
+            >
+              <BackupFolderIcon active={!!backupFolder} />
+            </button>
+          )}
 
           {/* GitHub link */}
           <button
@@ -174,6 +227,36 @@ export default function AppCard({ app, installed, serverPort, isFavorite, onClon
           </div>
         )}
       </div>
+
+      {/* Last backup footer */}
+      {lastBackup && (
+        <div className="border-t border-white/[0.06] pt-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span style={{ color: '#f59e0b', fontSize: 11, flexShrink: 0 }}>⬆</span>
+            <span
+              className="text-[10px] text-[#64748b] truncate"
+              title={lastBackup.fileName}
+            >
+              {lastBackup.fileName.length > 26
+                ? lastBackup.fileName.slice(0, 23) + '…'
+                : lastBackup.fileName}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] text-[#4a5568]">{relativeDate(lastBackup.copiedAt)}</span>
+            {backupFolder && (
+              <button
+                onClick={onOpenBackupFolder}
+                title="Open backup folder"
+                className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-[#f59e0b]/70 hover:text-[#f59e0b] hover:bg-[#f59e0b]/10 border border-[#f59e0b]/20 hover:border-[#f59e0b]/40 transition-colors"
+              >
+                <FolderOpenIcon />
+                Show
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

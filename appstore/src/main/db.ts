@@ -12,14 +12,24 @@ interface CloneRecord {
   path: string
 }
 
+export interface BackupRecord {
+  fileName: string
+  copiedAt: string
+  destPath: string
+}
+
 interface DbData {
   settings: Settings
   cloneHistory: Record<string, CloneRecord>
+  backupFolders: Record<string, string>
+  backupHistory: Record<string, BackupRecord>
 }
 
 const defaults: DbData = {
   settings: { localFolder: '', firstRun: true },
-  cloneHistory: {}
+  cloneHistory: {},
+  backupFolders: {},
+  backupHistory: {}
 }
 
 function dbPath(): string {
@@ -30,7 +40,12 @@ function load(): DbData {
   try {
     const p = dbPath()
     if (fs.existsSync(p)) {
-      return JSON.parse(fs.readFileSync(p, 'utf-8'))
+      const raw = JSON.parse(fs.readFileSync(p, 'utf-8'))
+      return {
+        ...defaults,
+        ...raw,
+        settings: { ...defaults.settings, ...raw.settings }
+      }
     }
   } catch {}
   return JSON.parse(JSON.stringify(defaults))
@@ -58,4 +73,24 @@ export function recordClone(appId: string, appPath: string): void {
 
 export function getCloneHistory(): Record<string, CloneRecord> {
   return load().cloneHistory
+}
+
+export function getBackupFolders(): Record<string, string> {
+  return load().backupFolders
+}
+
+export function setBackupFolder(appId: string, folderPath: string): void {
+  const db = load()
+  db.backupFolders[appId] = folderPath
+  save(db)
+}
+
+export function getBackupHistory(): Record<string, BackupRecord> {
+  return load().backupHistory
+}
+
+export function recordBackup(appId: string, record: BackupRecord): void {
+  const db = load()
+  db.backupHistory[appId] = record
+  save(db)
 }
