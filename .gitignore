@@ -22,6 +22,3 @@ local-keywords-files-finder/
 local-filesync/
 local-api-web-proxy/
 MyCareerPulse/
-
-# Built release artifacts
-releases/
