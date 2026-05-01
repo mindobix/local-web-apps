@@ -135,7 +135,8 @@
     "category": "Lifestyle",
     "featured": false,
     "startType": "static",
-    "indexFile": "index.html"
+    "indexFile": "index.html",
+    "backupPattern": "recipebook-backup-*.json"
   },
   {
     "id": "myfamilytree",
@@ -162,7 +163,8 @@
     "category": "Finance",
     "featured": false,
     "startType": "static",
-    "indexFile": "index.html"
+    "indexFile": "index.html",
+    "backupPattern": "billpay-backup-*.json"
   },
   {
     "id": "local-weekly-options-trade-plan",
