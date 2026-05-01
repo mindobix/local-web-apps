@@ -36,9 +36,9 @@ export default function App() {
   }, [])
 
   const handleSetupDone = (folder: string) => {
-    window.api.saveSettings({ localFolder: folder, firstRun: false }).then(() => {
-      setSettings(s => s ? { ...s, localFolder: folder, firstRun: false } : s)
-    })
+    const next: Settings = { localFolder: folder, firstRun: false }
+    setSettings(next)
+    window.api.saveSettings(next)
   }
 
   if (loading) {
